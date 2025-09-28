@@ -1,0 +1,28 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+
+protected:
+    string name;
+public:
+    Person(string n) : name(n) {}
+    void introduce() { 
+        cout << "나는 " << name << "이다" << endl; 
+    }
+};
+
+class Student : public Person { // 단일 상속
+public:
+    Student(string n) : Person(n) {}
+    void study() {
+        cout << name << "이라서 공부한다 " << endl;
+    }
+};
+
+int main() {
+    Student s("학생");
+    s.introduce();  // 부모 기능 사용
+    s.study();      // 자식이 추가한 기능
+}
