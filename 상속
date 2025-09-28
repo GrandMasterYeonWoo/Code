@@ -1,0 +1,26 @@
+#include <iostream>
+using namespace std;
+
+class Walker {
+public:
+    void walk() {
+        cout << "걷는중." << endl;
+    }
+};
+
+class Swimmer {
+public:
+    void swim() {
+        cout << "수영중." << endl;
+    }
+};
+
+class Duck : public Walker, public Swimmer { // 다중 상속
+    // Walker의 walk(), Swimmer의 swim() 둘 다 물려받음
+};
+
+int main() {
+    Duck d;
+    d.walk();  // Walker 기능
+    d.swim();  // Swimmer 기능
+}
