@@ -1,0 +1,36 @@
+#include <iostream>
+using namespace std;
+
+class car {
+public:
+    virtual void horn() { cout << "빵빵" << endl; }
+};
+
+class bus {
+public:
+    virtual void horn() { cout << "빵빵" << endl; }
+};
+
+class sound : public car, public bus {
+public:
+    void horn() override { cout << "빵빵" << endl; } // override 사용
+
+    void callBases() {
+        car::horn(); // car 버전 강제 호출
+        bus::horn(); // bus 버전 강제 호출
+    }
+};
+
+int main() {
+    sound x;
+
+    cout << "----[ 직접 호출 ]----" << endl;
+    x.horn();  // 빵빵
+
+    cout << "----[ 포인터 경유해봄 ]----" << endl;
+    car* pc = &x; pc->horn();
+    bus* pb = &x; pb->horn(); 
+
+    cout << "----[ 강제 호출 ]----" << endl;
+    x.callBases();
+}
