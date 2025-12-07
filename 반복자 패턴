@@ -1,0 +1,136 @@
+#include <iostream>
+#include <map>
+#include <string>
+using namespace std;
+
+int main() {
+
+    multimap<string, int> inv = {
+        {"Potion", 2}, {"Elixir", 1}, {"Key", 1}, {"Map", 1}, {"Potion", 19}, {"Key", 2},
+        {"Potion", 5}, {"Elixir", 3}, {"Key",  6}, {"Map", 2},
+        {"Bomb",   4}, {"Antidote", 2}, {"Herb", 3}, {"Scroll", 1},
+        {"Arrow", 20}, {"Arrow", 15}, {"Gem",  7}, {"Gem", 3},
+        {"Torch", 2}, {"Food", 15}, {"Water", 18}, {"Bandage", 5}
+    };
+
+    const int CAP = 300;
+
+    while (true) {
+        // 아이템 목록 확인
+        cout << "[아이템 목록]" << endl;
+        if (inv.empty()) {
+            cout << "(인벤토리가 비어 있습니다.)" << endl;
+        }
+        else {
+            for (auto it = inv.begin(); it != inv.end(); ) {
+                cout << "- " << it->first << endl;
+                it = inv.equal_range(it->first).second; // 같은 이름 구간 건너뛰기
+            }
+        }
+
+        // 인벤토리 용량 계산(총 300칸, 1개=1칸 가정)
+        int total = 0;
+        for (const auto& e : inv) total += e.second;
+
+        int used = (total <= CAP) ? total : CAP;
+        int freeSlots = (total <= CAP) ? (CAP - total) : 0;
+        int overflow = (total > CAP) ? (total - CAP) : 0;
+        double usageRate = (CAP > 0) ? (100.0 * used / CAP) : 0.0;
+
+        cout << endl;
+        cout << "[인벤토리 사용량]" << endl;
+        cout << "총 칸수 : " << CAP << endl;
+        cout << "사용 칸 : " << used << " (" << usageRate << "%)" << endl;
+        cout << "남은 칸 : " << freeSlots << endl;
+        if (overflow > 0) {
+            cout << "경고: " << overflow << "개 초과 — 수용량을 넘었습니다." << endl;
+        }
+
+        // 전부 비었으면 자동 종료해도 됨
+        if (inv.empty()) {
+            cout << endl;
+            cout << "인벤토리에 더 이상 아이템이 없습니다. 프로그램을 종료합니다." << endl;
+            break;
+        }
+
+        // 사용자 입력 → 해당 아이템 총 개수 조회
+        cout << endl;
+        cout << "조회할 아이템 이름을 입력하세요 (예: Potion, 종료: /close): ";
+        string query;
+        cin >> query;
+
+        if (query == "/close") {
+            cout << "프로그램을 종료합니다." << endl;
+            break;
+        }
+
+        auto range = inv.equal_range(query);
+        int sum = 0;
+        for (auto jt = range.first; jt != range.second; ++jt)
+            sum += jt->second;
+
+        cout << endl;
+        cout << "[" << query << " 조회 결과]" << endl;
+        cout << query << " : " << sum << "개" << endl;
+
+        if (sum == 0) {
+            cout << "(인벤토리에 없습니다)" << endl;
+            // 다시 처음 상태로 (while 루프 계속)
+            continue;
+        }
+
+        // 아이템 사용 여부 질문
+        cout << "이 아이템을 사용하시겠습니까? (y/n) : ";
+        char ans;
+        cin >> ans;
+
+        if (ans == 'y' || ans == 'Y') {
+            // multimap에서 해당 아이템 1개 사용
+            auto it = inv.lower_bound(query); // query 키의 첫 위치
+            while (it != inv.end() && it->first == query) {
+                if (it->second > 0) {
+                    it->second -= 1;          // 1개 사용
+                    if (it->second <= 0) {
+                        it = inv.erase(it);   // 0개면 해당 엔트리 삭제
+                    }
+                    else {
+                        ++it;
+                    }
+                    break; // 한 번만 사용
+                }
+                else {
+                    ++it;
+                }
+            }
+
+            // 사용 후 해당 아이템 남은 개수 다시 확인
+            range = inv.equal_range(query);
+            int remain = 0;
+            for (auto jt = range.first; jt != range.second; ++jt)
+                remain += jt->second;
+
+            cout << endl;
+            cout << "[" << query << " 사용 결과]" << endl;
+            if (remain > 0) {
+                cout << "남은 " << query << " : " << remain << "개" << endl;
+            }
+            else {
+                cout << query << " 아이템은 더 이상 인벤토리에 없습니다." << endl;
+            }
+
+            cout << endl;
+            cout << "아이템 사용 후 상태로 돌아갑니다." << endl;
+        }
+        else {
+            cout << endl;
+            cout << "아이템 사용을 취소하였습니다." << endl;
+        }
+
+        cout << endl;
+        cout << "----------------------------------------" << endl;
+        cout << endl;
+        // while(true) 이므로 여기서 다시 처음(목록/인벤 상태 출력)으로 돌아감
+    }
+
+    return 0;
+}
